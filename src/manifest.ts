@@ -12,7 +12,6 @@ export default defineManifest({
     '128': 'img/logo-128.png',
   },
   action: {
-    default_popup: 'popup.html',
     default_icon: 'img/logo-48.png',
   },
   options_page: 'options.html',
@@ -28,9 +27,9 @@ export default defineManifest({
   ],
   web_accessible_resources: [
     {
-      resources: ['img/logo-16.png', 'img/logo-34.png', 'img/logo-48.png', 'img/logo-128.png'],
-      matches: [],
+      resources: ['img/logo-16.png', 'img/logo-34.png', 'img/logo-48.png', 'img/logo-128.png', 'pages/index.html'],
+      matches: ["\u003Call_urls>"],
     },
   ],
-  permissions: [],
+  permissions: ['scripting', 'activeTab', 'tabs'],
 })

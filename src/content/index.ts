@@ -1,3 +1,2 @@
-console.info('chrome-ext template-react-ts content script')
-
-export {}
+console.log('this is')
+export { }
