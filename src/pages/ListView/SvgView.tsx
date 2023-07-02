@@ -1,3 +1,5 @@
+import { TSVGDATA } from "../../content"
+import log from "../../utils/log"
 import useAppStore from "../store"
 
 type TImageViewProps = {
@@ -34,9 +36,13 @@ const convertSvgToBase64 = (ele: SVGAElement) => {
   const base64Data = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
   return base64Data
 }
-export default ({ originHtml }) => {
-  const element = 
-  return <div>
 
+type TProps = {
+  svgData: TSVGDATA
+}
+
+export default ({ svgData }: TProps) => {
+  return <div>
+    {svgData.data}
   </div>
 }
