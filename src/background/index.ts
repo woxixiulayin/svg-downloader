@@ -1,48 +1,9 @@
-type TSvgFinder = [
-  (ele: Element) => boolean, // condition
-  (ele: Element) => string, // parser
-]
-
-function getAllSvgHtml() {
-  const svgFinders: Array<TSvgFinder> = [
-    [ele => {
-      if (ele.tagName !== 'DIV') return false
-      const style = window.getComputedStyle(ele)
-      const src = style.backgroundImage.slice(4, -1).replace(/"/g, '');
-      return src.includes('svg')
-    }, ele => {
-      const style = window.getComputedStyle(ele);
-      const src = style.backgroundImage.slice(4, -1).replace(/"/g, '');
-      const image = new Image();
-      image.src = src;
-      return image.outerHTML;
-    },
-    ], [
-      ele => ele.tagName === 'SVG',
-      ele => ele.outerHTML,
-    ], [
-      ele => ele.tagName === 'IMG' && ele.outerHTML.includes('\.svg'),
-      ele => ele.outerHTML,
-    ],
-  ]
-  const getAllSvgs = () => {
-    const svgs = [] as any
-    Array.from(document.querySelectorAll('*')).forEach(ele => {
-      const finder = svgFinders.find(finder => finder[0](ele))
-      if (finder) {
-        svgs.push(finder[1](ele))
-      }
-    })
-    return svgs
-  }
-
-  const allSvgs = getAllSvgs()
-  return [
-    ...new Set(allSvgs),
-  ];
+const getAllSvgs = () => {
+  //@ts-ignore
+  return window.__COLLECT_SVG__()
 }
 
-const executeScript = async (tabId, func) => (await chrome.scripting.executeScript({
+const executeScript = async (tabId: any, func: any) => (await chrome.scripting.executeScript({
   target: { tabId },
   func,
 }))[0].result;
@@ -63,7 +24,7 @@ chrome.action.onClicked.addListener(async ({ url }) => {
   }
   else {
     const { id } = (await chrome.tabs.query({ active: true, currentWindow: true }))[0];
-    const data = await executeScript(id, getAllSvgHtml);
+    const data = await executeScript(id, getAllSvgs);
     const url = await executeScript(id, () => document.location.host);
     const location = await executeScript(id, () => document.location.origin);
     chrome.tabs.create({ url: `./pages/index.html`, active: true }, (tab) => {

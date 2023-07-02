@@ -1,0 +1,1 @@
+export const COLLECTOR_FUNC = `__COLLECT_SVG__`
