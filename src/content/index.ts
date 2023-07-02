@@ -12,7 +12,7 @@ type TSvgFinder = [
   (ele: Element) => TSVGDATA, // change ele to base64
 ]
 
-enum SVGTypeEnum {
+export enum SVGTypeEnum {
   IMAGESRC = 'image src',
   BACKGROUNDIMG = 'background img',
   INLINE = 'inline',

@@ -10,7 +10,7 @@ export default () => {
     return state.originSvgList
   }, [state.originSvgList])
 
-  return <div>
+  return <div className="flex">
     {svgDataList.map(item => <SvgView svgData={item} />)}
   </div>
 }

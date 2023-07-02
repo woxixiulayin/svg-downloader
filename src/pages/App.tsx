@@ -2,7 +2,6 @@ import { useEffect } from "react"
 import useAppStore from "./store"
 import log from "../utils/log"
 import ListView from './ListView'
-
 export default () => {
   const state = useAppStore(state => state)
 

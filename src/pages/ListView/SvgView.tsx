@@ -1,4 +1,5 @@
-import { TSVGDATA } from "../../content"
+import { useEffect, useState } from "react"
+import { SVGTypeEnum, TSVGDATA } from "../../content"
 import log from "../../utils/log"
 import useAppStore from "../store"
 
@@ -42,7 +43,16 @@ type TProps = {
 }
 
 export default ({ svgData }: TProps) => {
-  return <div>
-    {svgData.data}
+  const [svgBase64, setSvgBase64] = useState('')
+
+  useEffect(() => {
+    if (svgData.type === SVGTypeEnum.INLINE) {
+      const base64 = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData.data)));
+      setSvgBase64(base64)
+    }
+  }, [svgData])
+
+  return <div className="w-80">
+    <img className="w-full" src={svgBase64} alt={svgData.alt} />
   </div>
 }
