@@ -1,5 +1,5 @@
 type TSvgFinder = [
-  (ele: Element) => boolean, // filter
+  (ele: Element) => boolean, // condition
   (ele: Element) => string, // parser
 ]
 
@@ -18,16 +18,11 @@ function getAllSvgHtml() {
       return image.outerHTML;
     },
     ], [
-      ele => {
-        if (['SVG', 'IMG', 'G', 'SYMBOL'].includes(ele.tagName)) {
-          const outerHtml = ele.outerHTML
-          return outerHtml.includes('svg') || outerHtml.includes('<g ')
-        }
-        return false
-      },
-      ele => {
-        return ele.outerHTML
-      }
+      ele => ele.tagName === 'SVG',
+      ele => ele.outerHTML,
+    ], [
+      ele => ele.tagName === 'IMG' && ele.outerHTML.includes('\.svg'),
+      ele => ele.outerHTML,
     ],
   ]
   const getAllSvgs = () => {
@@ -42,21 +37,6 @@ function getAllSvgHtml() {
   }
 
   const allSvgs = getAllSvgs()
-  // const parseBgImageElements = () => {
-  //   const imagesWithSrc = [];
-  //   const documentElements = Array.from(document.querySelectorAll('div'));
-  //   documentElements.forEach((element) => {
-  //     const style = window.getComputedStyle(element);
-  //     const src = style.backgroundImage.slice(4, -1).replace(/"/g, '');
-  //     if (src.includes('svg')) {
-  //       const image = new Image();
-  //       image.src = src;
-  //       imagesWithSrc.push(image.outerHTML);
-  //     }
-  //   });
-  //   return imagesWithSrc;
-  // };
-
   return [
     ...new Set(allSvgs),
   ];

@@ -1,8 +1,8 @@
 import { useEffect } from "react"
-import useStore from "./store"
+import useAppStore from "./store"
 
 export default () => {
-  const state = useStore(state => state) as any
+  const state = useAppStore(state => state)
   useEffect(() => {
     console.log('pagesss')
     console.log('chrome.runtime.onMessage.addListener', chrome.runtime.onMessage.addListener)
