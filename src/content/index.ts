@@ -86,5 +86,13 @@ function getAllSvgHtml() {
   ];
 }
 
-//@ts-ignore
-window[COLLECTOR_FUNC] = getAllSvgHtml
+
+chrome.runtime.onMessage.addListener((message) => {
+  log.info("receive background data:", message);
+  const event = new Event('message');
+  event.data = message;
+
+  setTimeout(() => {
+    document.dispatchEvent(event);
+  }, 5000)
+});

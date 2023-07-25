@@ -1,16 +1,15 @@
-const getAllSvgs = () => {
-  //@ts-ignore
-  return window.__COLLECT_SVG__()
-}
+import getAllSvgs from './getAllSvgs'
+const isProd = import.meta.env.PROD
 
 const executeScript = async (tabId: any, func: any) => (await chrome.scripting.executeScript({
   target: { tabId },
   func,
 }))[0].result;
 
+const listPageUrl = isProd ? '' : 'http://localhost:3033/download-svg-list'
 chrome.action.onClicked.addListener(async ({ url }) => {
   if (url === null || url === void 0 ? void 0 : url.includes('chrome://')) {
-    chrome.tabs.create({ url: `/pages/page.html`, active: true }, () => {
+    chrome.tabs.create({ url: listPageUrl, active: true }, () => {
       chrome.tabs.onUpdated.addListener(function listener(tabId, changeInfo) {
         if (changeInfo.status === 'complete') {
           chrome.tabs.sendMessage(tabId, {
@@ -27,7 +26,7 @@ chrome.action.onClicked.addListener(async ({ url }) => {
     const data = await executeScript(id, getAllSvgs);
     const url = await executeScript(id, () => document.location.host);
     const location = await executeScript(id, () => document.location.origin);
-    chrome.tabs.create({ url: `./pages/index.html`, active: true }, (tab) => {
+    chrome.tabs.create({ url: listPageUrl, active: true }, (tab) => {
       chrome.tabs.onUpdated.addListener(function listener(tabId, changeInfo) {
         if (changeInfo.status === 'complete') {
           setTimeout(() => {

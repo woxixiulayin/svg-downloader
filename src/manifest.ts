@@ -27,7 +27,7 @@ export default defineManifest({
   ],
   web_accessible_resources: [
     {
-      resources: ['img/logo-16.png', 'img/logo-34.png', 'img/logo-48.png', 'img/logo-128.png', 'pages/index.html'],
+      resources: ['img/logo-16.png', 'img/logo-34.png', 'img/logo-48.png', 'img/logo-128.png', 'pages/index.html', 'src/background/getAllSvgs.ts'],
       matches: ["\u003Call_urls>"],
     },
   ],
