@@ -25,20 +25,22 @@ chrome.action.onClicked.addListener(async ({ url }) => {
     const { id } = (await chrome.tabs.query({ active: true, currentWindow: true }))[0];
     const data = await executeScript(id, getAllSvgs);
     const url = await executeScript(id, () => document.location.host);
-    const location = await executeScript(id, () => document.location.origin);
+    const origin = await executeScript(id, () => document.location.origin);
+    const outMsg = {
+      type: 'svg-data',
+      payload: {
+        data,
+        url,
+        origin
+      }
+    }
     chrome.tabs.create({ url: listPageUrl, active: true }, (tab) => {
-      chrome.tabs.onUpdated.addListener(function listener(tabId, changeInfo) {
-        if (changeInfo.status === 'complete') {
-          setTimeout(() => {
-            chrome.tabs.sendMessage(tabId, {
-              data,
-              url,
-              location
-            });
-          }, 500);
-          chrome.tabs.onUpdated.removeListener(listener);
-        }
-      });
+      const onMsg = (inCommingMsg: any, sender: any) => {
+        if (sender.tab?.id !== tab.id || inCommingMsg?.payload?.type !== 'site-load') return
+        chrome.tabs.sendMessage(tab.id as number, outMsg);
+        chrome.tabs.onUpdated.removeListener(onMsg);
+      }
+      chrome.runtime.onMessage.addListener(onMsg);
     });
   }
 })

@@ -54,6 +54,7 @@ const getAllSvg = () => {
         }
       },
     ], [
+      // 背景图片为svg的，返回svg url
       //@ts-ignore
       ele => ele.tagName.toUpperCase() === 'IMG' && ele.src.includes('\.svg'),
       (ele) => {

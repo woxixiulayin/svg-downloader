@@ -86,13 +86,36 @@ function getAllSvgHtml() {
   ];
 }
 
+log.info('content loaded')
+const onReceiveMessage = (msg: any) => {
+  if (msg?.type !== 'svg-data') return
+  // 收到一次消息就卸载
+  chrome.runtime.onMessage.removeListener(onReceiveMessage)
+  log.info("receive background data:", msg);
+  let count = 0
+  const timer = setInterval(() => {
+    if (count > 100) {
+      clearInterval(timer)
+    }
+    count += 1
+    const div = document.querySelector('#svg-list-page')
+    if (div) {
+      clearInterval(timer)
+      log.info('find flagdom and send data')
+      window.postMessage({
+        source: 'svg-downloader',
+        payload: msg?.payload || {}
+      })
+    }
+  }, 200)
+}
 
-chrome.runtime.onMessage.addListener((message) => {
-  log.info("receive background data:", message);
-  const event = new Event('message');
-  event.data = message;
-
-  setTimeout(() => {
-    document.dispatchEvent(event);
-  }, 5000)
-});
+// 当前为download-svg-list时，说明是接收svg数据
+if (window.location.pathname.indexOf('download-svg-list') !== -1) {
+  chrome.runtime.sendMessage({
+    payload: {
+      type: 'site-load',
+    }
+  })
+  chrome.runtime.onMessage.addListener(onReceiveMessage);
+}
