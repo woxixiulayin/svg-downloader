@@ -22,3 +22,4 @@
 secrets.*.js
 yarn.lock
 node_modules
+package

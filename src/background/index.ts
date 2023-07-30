@@ -1,12 +1,16 @@
-import getAllSvgs from './getAllSvgs'
 const isProd = import.meta.env.PROD
+
+const checkContent = () => {
+  const div = document.querySelector('#svg-downloader-dom')
+  return !!div
+}
 
 const executeScript = async (tabId: any, func: any) => (await chrome.scripting.executeScript({
   target: { tabId },
   func,
 }))[0].result;
 
-const listPageUrl = isProd ? '' : 'http://localhost:3033/download-svg-list'
+const listPageUrl = isProd ? 'https://www.svgdownloader.com/download-svg-list' : 'http://localhost:3033/download-svg-list'
 
 const openSvgListWithData = (outMsg: any) => chrome.tabs.create({ url: listPageUrl, active: true }, (tab) => {
   const onMsg = (inCommingMsg: any, sender: any) => {
@@ -36,6 +40,17 @@ chrome.action.onClicked.addListener(async ({ url }) => {
   }
   else {
     const { id } = (await chrome.tabs.query({ active: true, currentWindow: true }))[0];
+    // 检查是否是首次安装插件，所以对应的页面没有conten注入
+    const isContentInject = await executeScript(id, checkContent)
+    if (!isContentInject) {
+      openSvgListWithData({
+        data: [],
+        url: '',
+        origin: '',
+      })
+      return
+    }
+
     const listener = (inCommingMsg: any, sender: any) => {
       if (inCommingMsg?.type !== 'svg-downloader-collected-svg-data') return
       chrome.runtime.onMessage.removeListener(listener)

@@ -109,6 +109,14 @@ log.info('content loaded')
 
 const isSvgListPage = window.location.pathname.indexOf('download-svg-list') !== -1
 
+// 用于检查当前页面是否注入content
+const createFlagDom = () => {
+  const div = document.createElement('div')
+  div.id = 'svg-downloader-dom'
+  document.body.appendChild(div)
+}
+createFlagDom()
+
 if (!isSvgListPage) {
   log.info('isSvgListPage', isSvgListPage)
   const listener = async (msg: any) => {
