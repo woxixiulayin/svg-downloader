@@ -2,7 +2,7 @@ import { defineManifest } from '@crxjs/vite-plugin'
 
 export default defineManifest({
   name: 'svg downloader',
-  description: 'download svg from website',
+  description: 'download svg from any website',
   version: '0.0.1',
   manifest_version: 3,
   icons: {
@@ -21,8 +21,7 @@ export default defineManifest({
   },
   content_scripts: [
     {
-      // matches: ['http://*/*', 'https://*/*'],
-      matches: ['http://localhost:3033/*'],
+      matches: ['http://*/*', 'https://*/*'],
       js: ['src/content/index.ts'],
     },
   ],
