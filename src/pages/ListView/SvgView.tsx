@@ -6,6 +6,12 @@ import useAppStore from "../store"
 type TImageViewProps = {
   originHtml: string
 }
+const base64 = (str: string) => {
+  return btoa(str.replace(/[\u00A0-\u2666]/g, function (c) {
+    return '&#' + c.charCodeAt(0) + ';';
+  }));
+}
+
 const convertImgToBase64 = (ele: HTMLImageElement) => {
   // 创建一个新的Canvas元素
   const canvas = document.createElement('canvas');
@@ -34,7 +40,7 @@ const convertSvgToBase64 = (ele: SVGAElement) => {
   const svgData = new XMLSerializer().serializeToString(ele);
 
   // 将SVG转换为Base64数据URL
-  const base64Data = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+  const base64Data = 'data:image/svg+xml;base64,' + base64(svgData);
   return base64Data
 }
 
@@ -47,8 +53,8 @@ export default ({ svgData }: TProps) => {
 
   useEffect(() => {
     if (svgData.type === SVGTypeEnum.INLINE) {
-      const base64 = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData.data)));
-      setSvgBase64(base64)
+      const base64Data = 'data:image/svg+xml;base64,' + base64(svgData.data);
+      setSvgBase64(base64Data)
     }
   }, [svgData])
 

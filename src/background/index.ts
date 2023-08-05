@@ -24,23 +24,26 @@ const openSvgListWithData = (outMsg: any) => chrome.tabs.create({ url: listPageU
   chrome.runtime.onMessage.addListener(onMsg);
 });
 
-chrome.action.onClicked.addListener(async ({ url }) => {
-  if (url === null || url === void 0 ? void 0 : url.includes('chrome://')) {
-    chrome.tabs.create({ url: listPageUrl, active: true }, () => {
-      chrome.tabs.onUpdated.addListener(function listener(tabId, changeInfo) {
-        if (changeInfo.status === 'complete') {
-          chrome.tabs.sendMessage(tabId, {
-            data: [],
-            url: 'home',
-          });
-          chrome.tabs.onUpdated.removeListener(listener);
-        }
-      });
+const createEmptyPage = () => {
+  chrome.tabs.create({ url: listPageUrl, active: true }, () => {
+    chrome.tabs.onUpdated.addListener(function listener(tabId, changeInfo) {
+      if (changeInfo.status === 'complete') {
+        chrome.tabs.sendMessage(tabId, {
+          data: [],
+          url: 'home',
+        });
+        chrome.tabs.onUpdated.removeListener(listener);
+      }
     });
+  });
+}
+chrome.action.onClicked.addListener(async ({ url }) => {
+  if (!url || url.includes('chrome://')) {
+    createEmptyPage()
   }
   else {
     const { id } = (await chrome.tabs.query({ active: true, currentWindow: true }))[0];
-    // 检查是否是首次安装插件，所以对应的页面没有conten注入
+    // 检查是否是首次安装插件，此时对应的页面没有conten注入
     const isContentInject = await executeScript(id, checkContent)
     if (!isContentInject) {
       openSvgListWithData({

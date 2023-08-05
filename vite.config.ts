@@ -11,6 +11,9 @@ import { config } from './src/read_pages_folder'
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   return {
+    server: {
+      port: 4044
+    },
     build: {
       emptyOutDir: true,
       outDir: 'build',
