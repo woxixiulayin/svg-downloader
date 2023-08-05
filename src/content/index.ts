@@ -61,9 +61,13 @@ const svgFinders: Array<TSvgFinder> = [
   [
     ele => ele.tagName.toUpperCase() === 'SVG',
     async ele => {
+      const svgStr = ele.outerHTML
+      const regex = /<title>(.*?)<\/title>/;
+      const matches = regex.exec(svgStr);
+      const alt = matches ? matches[1] : ''
       return {
         type: SVGTypeEnum.INLINE,
-        alt: '',
+        alt,
         data: ele.outerHTML,
       }
     },
@@ -95,11 +99,16 @@ async function getAllSvgData() {
   const allSvgResult = await Promise.all(allSvgs)
   console.log('allSvgResult', allSvgResult)
   const uniqueRes: TSVGDATA[] = []
+  let noAltIndx = 0
   for (let res of allSvgResult) {
     // 空内容或者跨域导致的不能访问的内容
     if (!res.data) continue
     // 剔除一样的内容
     if (uniqueRes.find(item => item.data === res.data)) continue
+    if (res.alt === '') {
+      noAltIndx += 1
+      res.alt = `svg-image-${noAltIndx}`
+    }
     uniqueRes.push(res)
   }
   return uniqueRes;
