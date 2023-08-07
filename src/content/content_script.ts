@@ -117,59 +117,71 @@ async function getAllSvgData() {
 log.info('content loaded')
 
 const isSvgListPage = window.location.pathname.indexOf('download-svg-list') !== -1
+const listPageUrl = isProd ? 'https://www.svgdownloader.com/download-svg-list' : "http://localhost:3033/download-svg-list"
 
 log.info('isSvgListPage', isSvgListPage)
 if (!isSvgListPage) {
   const listener = async (msg: any) => {
     log.info('receive msg', msg)
     if (msg.type !== 'svg-downloader-collect-svg') return
-    const data = await getAllSvgData()
-    log.info('receive svg-downloader-collect-svg')
-    chrome.runtime.sendMessage({
-      type: 'svg-downloader-collected-svg-data',
-      payload: {
-        data,
-        url: location.href,
-        origin: location.origin
-      }
-    })
-  }
+    chrome.runtime.onMessage.removeListener(listener)
+    // begin to collect first 
+    const svgPromise = getAllSvgData()
 
-  // 只会受到插件单独发给某个页面的消息，所以不用removelistener
+    // wait single to send svg data
+    const windowListener = async (e: MessageEvent) => {
+      if (e.data?.type === 'begin-get-svg-data') {
+        window.removeEventListener('message', windowListener)
+        const data = await svgPromise
+        log.info('receive list page info', e)
+        e.source?.postMessage({
+          type: 'get-svg-data-done',
+          payload: {
+            data,
+            url: window.location.pathname,
+            origin: window.location.origin
+          },
+        }, { targetOrigin: '*' })
+      }
+    }
+    window.addEventListener('message', windowListener)
+    // opne svg list page
+    window.open(listPageUrl)
+  }
   chrome.runtime.onMessage.addListener(listener);
 }
 
 // 当前为download-svg-list时，说明是接收svg数据
-if (isSvgListPage) {
+// if (isSvgListPage) {
 
-  const onReceiveMessage = (msg: any) => {
-    if (msg?.type !== 'svg-downloader-svg-data') return
-    // 收到一次消息就卸载
-    chrome.runtime.onMessage.removeListener(onReceiveMessage)
-    log.info("receive background data:", msg);
-    let count = 0
-    const timer = setInterval(() => {
-      if (count > 100) {
-        clearInterval(timer)
-      }
-      count += 1
-      const div = document.querySelector('#svg-list-page')
-      if (div) {
-        clearInterval(timer)
-        log.info('find flagdom and send data')
-        window.postMessage({
-          type: 'svg-downloader-svg-data',
-          payload: msg?.payload || {}
-        })
-      }
-    }, 200)
-  }
-  log.info('send', `svg-downloader-page-load`)
-  chrome.runtime.sendMessage({
-    type: 'svg-downloader-page-load'
-  })
-  chrome.runtime.onMessage.addListener(onReceiveMessage);
-}
+//   const onReceiveMessage = (msg: any) => {
+//     if (msg?.type !== 'svg-downloader-svg-data') return
+//     // 收到一次消息就卸载
+//     chrome.runtime.onMessage.removeListener(onReceiveMessage)
+//     log.info("receive background data:", msg);
+//     let count = 0
+//     const timer = setInterval(() => {
+//       if (count > 100) {
+//         clearInterval(timer)
+//       }
+//       count += 1
+//       const div = document.querySelector('#svg-list-page')
+//       if (div) {
+//         clearInterval(timer)
+//         log.info('find flagdom and send data')
+//         window.postMessage({
+//           type: 'svg-downloader-svg-data',
+//           payload: msg?.payload || {}
+//         })
+//       }
+//     }, 200)
+//   }
+//   log.info('send', `svg-downloader-page-load`)
+//   chrome.runtime.sendMessage({
+//     type: 'svg-downloader-page-load'
+//   })
+//   chrome.runtime.onMessage.addListener(onReceiveMessage);
+// }
 
 
 

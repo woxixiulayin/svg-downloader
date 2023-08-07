@@ -1,10 +1,7 @@
-// const isProd = import.meta.env.PROD
-const isProd = false
+const isProd = import.meta.env.PROD
+// const isProd = false
 
-const checkContent = () => {
-  const div = document.querySelector('#svg-downloader-dom')
-  return !!div
-}
+// content file is compile by vite handful
 const contentJs = 'content_script.js'
 const executeContentScript = (tabId: number) => chrome.scripting.executeScript({
   target: { tabId },
@@ -77,10 +74,13 @@ chrome.action.onClicked.addListener(async ({ url }) => {
     createEmptyPage()
   }
   else {
-    const { id } = (await chrome.tabs.query({ active: true, currentWindow: true }))[0];
+    const id = (await chrome.tabs.query({ active: true, currentWindow: true }))[0].id as number;
     // will inject script  once ,chrome did this
     await executeContentScript(id as number)
-    sendDataToNewPage(getCollectData(id as number))
+    // wait target page load content js
+    setTimeout(() => {
+      chrome.tabs.sendMessage(id, { type: 'svg-downloader-collect-svg' });
+    }, 500);
   }
 })
 export { }
