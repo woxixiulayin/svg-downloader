@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import { crx } from '@crxjs/vite-plugin'
 import react from '@vitejs/plugin-react'
 import zipPack from 'vite-plugin-zip-pack';
-import copy from 'rollup-plugin-copy';
+import iife from 'rollup-plugin-iife'
 
 import manifest from './src/manifest'
 //@ts-ignore
@@ -16,16 +16,23 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       emptyOutDir: true,
+      target: 'es2015',
       outDir: 'build',
       rollupOptions: {
-        input: config,
+        input: {
+          ...config,
+          content_script: './src/content/content_script.ts',
+        },
         output: {
-          chunkFileNames: 'assets/chunk-[hash].js',
+          format: `es`,
+          entryFileNames: '[name].js',
+          chunkFileNames: 'assets/[name].js',
         },
       },
     },
-
-    plugins: [crx({ manifest }), react(), zipPack({
+    plugins: [crx({ manifest }), iife({
+      include: 'content_script'
+    }), react(), zipPack({
       outDir: `package`,
       inDir: 'build',
       // @ts-ignore

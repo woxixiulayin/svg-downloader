@@ -5,24 +5,13 @@ const checkContent = () => {
   return !!div
 }
 
-const executeScript = async (tabId: any, func: any) => (await chrome.scripting.executeScript({
+const contentJs = isProd ? 'content_script.js' : 'assets/content-script-loader.content_script.ts.js.js'
+const executeContentScript = (tabId: number) => chrome.scripting.executeScript({
   target: { tabId },
-  func,
-}))[0].result;
+  files: [contentJs],
+})
 
 const listPageUrl = isProd ? 'https://www.svgdownloader.com/download-svg-list' : 'http://localhost:3033/download-svg-list'
-// const listPageUrl = 'https://www.svgdownloader.com/download-svg-list'
-const openSvgListWithData = (outMsg: any) => chrome.tabs.create({ url: listPageUrl, active: true }, (tab) => {
-  const onMsg = (inCommingMsg: any, sender: any) => {
-    if (sender.tab?.id !== tab.id || inCommingMsg?.type !== 'svg-downloader-page-load') return
-    chrome.runtime.onMessage.removeListener(onMsg);
-    chrome.tabs.sendMessage(tab.id as number, {
-      type: 'svg-downloader-svg-data',
-      payload: outMsg
-    });
-  }
-  chrome.runtime.onMessage.addListener(onMsg);
-});
 
 const createEmptyPage = () => {
   chrome.tabs.create({ url: listPageUrl, active: true }, () => {
@@ -38,6 +27,17 @@ const createEmptyPage = () => {
   });
 }
 
+const waitTabMsg = async (tabId: number, msgChecker: Function) => {
+  return new Promise((res) => {
+    const listener = (inCommingMsg: any, sender: any) => {
+      if (sender.tab?.id !== tabId || !msgChecker(inCommingMsg)) return
+      chrome.runtime.onMessage.removeListener(listener)
+      res(inCommingMsg)
+    }
+
+    chrome.runtime.onMessage.addListener(listener)
+  })
+}
 // get svg data from target page
 const getCollectData = async (tabId: number) => {
   return new Promise((res) => {
@@ -48,13 +48,17 @@ const getCollectData = async (tabId: number) => {
     }
 
     chrome.runtime.onMessage.addListener(listener)
-    chrome.tabs.sendMessage(tabId, { type: 'svg-downloader-collect-svg' });
+    // wait target page load content js
+    setTimeout(() => {
+      chrome.tabs.sendMessage(tabId, { type: 'svg-downloader-collect-svg' });
+    }, 500);
   })
 }
 
 // send svg data to new Page
 const sendDataToNewPage = (dataPromise: Promise<any>) => {
   chrome.tabs.create({ url: listPageUrl, active: true }, (tab) => {
+    executeContentScript(tab.id as number)
     const onMsg = async (inCommingMsg: any, sender: any) => {
       if (sender.tab?.id !== tab.id || inCommingMsg?.type !== 'svg-downloader-page-load') return
       chrome.runtime.onMessage.removeListener(onMsg);
@@ -74,25 +78,8 @@ chrome.action.onClicked.addListener(async ({ url }) => {
   }
   else {
     const { id } = (await chrome.tabs.query({ active: true, currentWindow: true }))[0];
-    // check if first time
-    const isContentInject = await executeScript(id, checkContent)
-    if (!isContentInject) {
-      openSvgListWithData({
-        data: [],
-        url: '',
-        origin: '',
-      })
-      return
-    }
-
-    // const listener = (inCommingMsg: any, sender: any) => {
-    //   if (inCommingMsg?.type !== 'svg-downloader-collected-svg-data') return
-    //   chrome.runtime.onMessage.removeListener(listener)
-    //   openSvgListWithData(inCommingMsg.payload)
-    // }
-
-    // chrome.runtime.onMessage.addListener(listener)
-    // chrome.tabs.sendMessage(id as number, { type: 'svg-downloader-collect-svg' });
+    // will inject script  once ,chrome did this
+    await executeContentScript(id as number)
     sendDataToNewPage(getCollectData(id as number))
   }
 })
