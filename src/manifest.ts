@@ -19,12 +19,12 @@ export default defineManifest({
     service_worker: 'src/background/index.ts',
     type: 'module',
   },
-  content_scripts: [
-    {
-      matches: ['https://www.svgdownloader.com/download-svg-list', "http://localhost:3033/download-svg-list"],
-      js: ['src/content/content_script.ts'],
-    },
-  ],
+  // content_scripts: [
+  //   {
+  //     matches: ['https://www.svgdownloader.com/download-svg-list', "http://localhost:3033/download-svg-list"],
+  //     js: ['src/content/content_script.ts'],
+  //   },
+  // ],
   web_accessible_resources: [
     {
       resources: ['img/logo-16.png', 'img/logo-34.png', 'img/logo-48.png', 'img/logo-128.png', 'pages/index.html'],

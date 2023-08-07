@@ -1,11 +1,11 @@
-const isProd = import.meta.env.PROD
+// const isProd = import.meta.env.PROD
+const isProd = false
 
 const checkContent = () => {
   const div = document.querySelector('#svg-downloader-dom')
   return !!div
 }
-
-const contentJs = isProd ? 'content_script.js' : 'assets/content-script-loader.content_script.ts.js.js'
+const contentJs = 'content_script.js'
 const executeContentScript = (tabId: number) => chrome.scripting.executeScript({
   target: { tabId },
   files: [contentJs],
