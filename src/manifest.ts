@@ -3,7 +3,7 @@ import { defineManifest } from '@crxjs/vite-plugin'
 export default defineManifest({
   name: 'SVG downloader',
   description: 'download svg from any website',
-  version: '1.0.1',
+  version: '1.0.2',
   manifest_version: 3,
   icons: {
     '16': 'img/logo-16.png',
@@ -13,6 +13,7 @@ export default defineManifest({
   },
   action: {
     default_icon: 'img/logo-48.png',
+    default_popup: 'popup.html'
   },
   options_page: 'options.html',
   background: {

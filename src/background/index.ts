@@ -8,7 +8,8 @@ const executeContentScript = (tabId: number) => chrome.scripting.executeScript({
   files: [contentJs],
 })
 
-const listPageUrl = isProd ? 'https://www.svgdownloader.com/download-svg-list' : 'http://localhost:3033/download-svg-list'
+// const listPageUrl = isProd ? 'https://www.svgdownloader.com/download-svg-list' : 'http://localhost:3033/download-svg-list'
+const listPageUrl = 'https://www.svgdownloader.com/download-svg-list'
 
 const createEmptyPage = () => {
   chrome.tabs.create({ url: listPageUrl, active: true }, () => {
@@ -69,7 +70,7 @@ const sendDataToNewPage = (dataPromise: Promise<any>) => {
   });
 }
 
-chrome.action.onClicked.addListener(async ({ url }) => {
+const onDownloadSvgClick = async ({ url }: any) => {
   if (!url || url.includes('chrome://')) {
     createEmptyPage()
   }
@@ -82,5 +83,27 @@ chrome.action.onClicked.addListener(async ({ url }) => {
       chrome.tabs.sendMessage(id, { type: 'svg-downloader-collect-svg' });
     }, 500);
   }
+}
+
+chrome.runtime.onMessage.addListener(msg => {
+  if (msg.type === 'popup-click-download-svg') {
+    onDownloadSvgClick({ url: msg.url })
+  }
 })
+
+
+// chrome.action.onClicked.addListener(async ({ url }) => {
+//   if (!url || url.includes('chrome://')) {
+//     createEmptyPage()
+//   }
+//   else {
+//     const id = (await chrome.tabs.query({ active: true, currentWindow: true }))[0].id as number;
+//     // will inject script  once ,chrome did this
+//     await executeContentScript(id as number)
+//     // wait target page load content js
+//     setTimeout(() => {
+//       chrome.tabs.sendMessage(id, { type: 'svg-downloader-collect-svg' });
+//     }, 500);
+//   }
+// })
 export { }

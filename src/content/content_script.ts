@@ -97,7 +97,7 @@ async function getAllSvgData() {
   })
 
   const allSvgResult = await Promise.all(allSvgs)
-  console.log('allSvgResult', allSvgResult)
+  log.info('allSvgResult', allSvgResult)
   const uniqueRes: TSVGDATA[] = []
   let noAltIndx = 0
   for (let res of allSvgResult) {
@@ -117,7 +117,8 @@ async function getAllSvgData() {
 log.info('content loaded')
 
 const isSvgListPage = window.location.pathname.indexOf('download-svg-list') !== -1
-const listPageUrl = isProd ? 'https://www.svgdownloader.com/download-svg-list' : "http://localhost:3033/download-svg-list"
+// const listPageUrl = isProd ? 'https://www.svgdownloader.com/download-svg-list' : "http://localhost:3033/download-svg-list"
+const listPageUrl = "https://www.svgdownloader.com/download-svg-list"
 
 log.info('isSvgListPage', isSvgListPage)
 if (!isSvgListPage) {
