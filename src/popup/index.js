@@ -1,7 +1,7 @@
-const btn1 = document.querySelector(`.btn-1`)
-btn1.addEventListener('click', () => {
-  window.open("https://www.csspicker.dev/?utm_source=svgdownloader-popup", '_blank')
-})
+// const btn1 = document.querySelector(`.btn-1`)
+// btn1.addEventListener('click', () => {
+//   window.open("https://www.csspicker.dev/?utm_source=svgdownloader-popup", '_blank')
+// })
 
 const btn2 = document.querySelector(`.btn-2`)
 btn2.addEventListener('click', () => {
